@@ -99,7 +99,7 @@ __m128 MatrixVectorMultiply(Matrix* pMatrix, __m128 vec) {
 }
 
 void MatrixMultiply(Matrix* pMat0, Matrix* pMat1) {
-	 
+
 
 }
 
@@ -183,9 +183,9 @@ GLint CreateTexture(void* data, GLsizei w, GLsizei h) {
 	return ret;
 }
 
-int main(void){
+int main(void) {
 	const float scr_width = 640.0f, scr_height = 480.0f;
-	
+
 	WindowData windata;
 
 	Matrix mat;
@@ -194,7 +194,7 @@ int main(void){
 	__m128 v1 = MatrixVectorMultiply(&mat, v0);
 
 	// Start GLFW somehow
-	if(!glfwInit()){
+	if (!glfwInit()) {
 		printf("Failed initializing GLFW\n");
 		return -1;
 	}
@@ -312,6 +312,26 @@ int main(void){
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+	GLuint framebuff, render_tex;
+	glGenTextures(1, &render_tex);
+	glBindTexture(GL_TEXTURE_2D, render_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glGenFramebuffers(1, &framebuff);
+	LogError("Failed creating Texture for Render Texture");
+
+	glGenFramebuffers(1, &framebuff);
+	glBindFramebuffer(GL_FRAMEBUFFER, framebuff);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, render_tex, 0);
+	LogError("Failed creating Frame Buffer for Render Texture");
+	if (GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
+		printf("Framebuffer incomplete\n");
+		return -1;
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	glBindTexture(GL_TEXTURE_2D, tex);
+
 	GLuint identity = glGetUniformLocation(program, "g_CameraMatrix");
 	//glUniformMatrix4fv(identity, 1, GL_FALSE, (const GLfloat*)&ortho);
 	glUniformMatrix4fv(identity, 1, GL_FALSE, (const GLfloat*)matrix);
@@ -319,9 +339,9 @@ int main(void){
 	// cos -sin        x
 	// sin  cos    *   y     x * cos + y * -sin  sin * x + cos * y
 	float angle = 0.0f;
-	const float tx  = scr_width * 0.5f, ty = scr_height * 0.5f;
+	const float tx = scr_width * 0.5f, ty = scr_height * 0.5f;
 
-	while(!glfwWindowShouldClose(windata.pWindow)){
+	while (!glfwWindowShouldClose(windata.pWindow)) {
 		glfwPollEvents();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -345,6 +365,6 @@ int main(void){
 		glfwSwapBuffers(windata.pWindow);
 		angle += 0.01f;
 	}
-	
+
 	return 0;
 }
