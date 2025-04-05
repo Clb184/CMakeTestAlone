@@ -5,5 +5,5 @@
 [Bb][Uu][Ii][Ll][Dd]
 bld/
 # Glew must be downloaded and added manually, I don't know any other way...
-glew/
+deps/glew/
 out/

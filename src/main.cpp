@@ -183,6 +183,42 @@ GLint CreateTexture(void* data, GLsizei w, GLsizei h) {
 	return ret;
 }
 
+void CreateRandomTexture(GLsizei w, GLsizei h) {
+	void* null_data = MemAlloc(w * h * 4);
+	memset(null_data, 0xffffffff, w * h * 4);
+	for (int i = 0; i < w * h; i++) {
+		char dt = rand() % 255;
+		int col = (0xff000000) | (dt << 16) | (dt << 8) | dt;
+		((int*)null_data)[i] = col;
+	}
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, null_data);
+	MemFree(null_data);
+}
+
+void CreateTextureBatch(GLuint* pTextures, GLsizei cnt, char** data, GLsizei w, GLsizei h) {
+	if (nullptr == pTextures) return;
+	glGenTextures(cnt, pTextures);
+
+	if (data) {
+		for (int i = 0; i < cnt; i++) {
+			glBindTexture(GL_TEXTURE_2D, pTextures[i]);
+			if (data[i] == nullptr) {
+				CreateRandomTexture(w, h);
+			}
+			else {
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, data[i]);
+			}
+		}
+	}
+	else {
+		for (int i = 0; i < cnt; i++) {
+			glBindTexture(GL_TEXTURE_2D, pTextures[i]);
+			CreateRandomTexture(w, h);
+		}
+	}
+}
+
+
 int main(void) {
 	const float scr_width = 640.0f, scr_height = 480.0f;
 
@@ -304,11 +340,24 @@ int main(void) {
 	GLuint tex;
 	tex = CreateTexture(nullptr, 16, 16);
 
+	GLint max_samplers;
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_samplers);
 	GLuint sampler;
 	glGenSamplers(1, &sampler);
-	glBindSampler(0, sampler);
-	glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	for (int i = 0; i < max_samplers; i++) {
+		glBindSampler(i, sampler);
+		LogError("Failed binding sampler unit");
+	}
+
+	GLuint* texs = (GLuint*)MemAlloc(sizeof(GLuint) * 16);
+	if (texs) {
+		CreateTextureBatch(texs, 16, nullptr, 32, 32);
+		glBindTextures(0, 16, texs);
+		LogError("Failed binding texture batch");
+	}
+
+	glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
@@ -330,7 +379,8 @@ int main(void) {
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	glBindTexture(GL_TEXTURE_2D, tex);
+	glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, tex);
 
 	GLuint identity = glGetUniformLocation(program, "g_CameraMatrix");
 	//glUniformMatrix4fv(identity, 1, GL_FALSE, (const GLfloat*)&ortho);
@@ -360,11 +410,28 @@ int main(void) {
 			LogError("Error mapping buffer data");
 		}
 		LogError("Error while mapping Vertex Buffer");
+
+		// Bind Render texture
+		glBindFramebuffer(GL_FRAMEBUFFER, framebuff);
+		glClearColor(1.0, 0.0, 0.0, 0.0);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glBindTextures(0, 16, texs);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		LogError("Error while drawing triangle for test");
+
+		// Go back to default render target
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, render_tex);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		LogError("Error while drawing triangle for test");
+
+		// Present
 		glfwSwapBuffers(windata.pWindow);
 		angle += 0.01f;
 	}
+
+	MemFree(texs);
 
 	return 0;
 }

@@ -19,26 +19,17 @@ project(CMAKE_TEST)
 file(GLOB cpp_files src/*.cpp)
 file(GLOB hpp_files src/*.hpp src/*.h)
 
-# Get GLFW
-FetchContent_Declare(
-	glfw
-	GIT_REPOSITORY https://github.com/glfw/glfw.git
-	GIT_TAG 43c9fb329116fcd57e94c8edc9ce2c1619a370a8
-)
-
-FetchContent_MakeAvailable(glfw)
-
 # exe
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 add_compile_definitions(GLEW_STATIC)
 
 add_executable(${PROJECT_NAME} ${cpp_files})
-add_subdirectory(glew/build/cmake)
+add_subdirectory(deps/glew/build/cmake)
+add_subdirectory(deps/glfw)
 target_link_libraries(${PROJECT_NAME} glfw glew_s)
 
 # Additional include directories
 target_include_directories(${PROJECT_NAME} 
 	PUBLIC include/
-	PUBLIC glew/include
 	)
 
