@@ -31,5 +31,6 @@ target_link_libraries(${PROJECT_NAME} glfw glew_s)
 # Additional include directories
 target_include_directories(${PROJECT_NAME} 
 	PUBLIC include/
+	PUBLIC deps/glew/include/
 	)
 
