@@ -38,7 +38,7 @@ namespace Clb184 {
 			printf("Not all memory has been freed:\n");
 			for (int i = 0; i < MEMINFO_MAX; i++) {
 				if (nullptr != m_vMemInfo[i].ptr_address) {
-					printf("%15s : %d -> %d bytes still allocated\n", m_vMemInfo[i].source_file, m_vMemInfo[i].line, m_vMemInfo[i].allocated);
+					//printf("%15s : %d -> %d bytes still allocated\n", m_vMemInfo[i].source_file, m_vMemInfo[i].line, m_vMemInfo[i].allocated);
 					free(m_vMemInfo[i].ptr_address);
 					m_vMemInfo[i].ptr_address = nullptr;
 					total_bytes += m_vMemInfo[i].allocated;
@@ -69,22 +69,22 @@ namespace Clb184 {
 					m_vMemInfo[i].source_file = p;
 					m_vMemInfo[i].line = line;
 					m_BlockCnt++;
-					printf("Mem @ %p -> %d bytes allocated\n", ret, size);
+					//printf("Mem @ %p -> %d bytes allocated\n", ret, size);
 					return ret;
 				}
 			}
-			printf("There's no room for Memory info, returning ptr %p\n", ret);
+			//printf("There's no room for Memory info, returning ptr %p\n", ret);
 			return ret;
 		}
 		else {
-			printf("Failed allocating memory\n");
+			//printf("Failed allocating memory\n");
 			return nullptr;
 		}
 	}
 
 	void MemManager::Free(void* address) {
 		if (nullptr == address) {
-			printf("nullptr given, ignoring\n");
+			//printf("nullptr given, ignoring\n");
 		}
 		else {
 			for (int i = 0; i < MEMINFO_MAX; i++) {
@@ -95,18 +95,18 @@ namespace Clb184 {
 					m_vMemInfo[i].line = 0;
 					m_BlockCnt--;
 					free(address);
-					printf("Mem @ %p -> Freed memory\n", address);
+					//printf("Mem @ %p -> Freed memory\n", address);
 					return;
 				}
 			}
-			printf("There's no Memory info for this address, freeing %p anyway\n", address);
+			//printf("There's no Memory info for this address, freeing %p anyway\n", address);
 			free(address);
 		}
 	}
 
 	void* MemManager::Reallocate(void* address, size_t size) {
 		if (nullptr == address) {
-			printf("nullptr given, ignoring\n");
+			//printf("nullptr given, ignoring\n");
 			return nullptr;
 		}
 		else {
@@ -118,15 +118,15 @@ namespace Clb184 {
 						m_vMemInfo[i].ptr_address = pNew;
 						m_vMemInfo[i].allocated = size;
 
-						printf("Mem @ %p -> Reallocated memory to Mem @ %p\n", pOld, pNew);
+						//printf("Mem @ %p -> Reallocated memory to Mem @ %p\n", pOld, pNew);
 						return pNew;
 					}
 				}
-				printf("There's no Memory info for this address, reallocating %p to %p anyway\n", address, pNew);
+				//printf("There's no Memory info for this address, reallocating %p to %p anyway\n", address, pNew);
 				return pNew;
 			}
 			else {
-				printf("Failed reallocating memory\n");
+				//printf("Failed reallocating memory\n");
 				return nullptr;
 			}
 		}
