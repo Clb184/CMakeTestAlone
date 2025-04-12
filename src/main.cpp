@@ -323,10 +323,12 @@ int main(void) {
 	// Start GLEW
 	glewExperimental = GL_TRUE;
 	GLenum glew_err = glewInit();
+#ifndef __linux__
 	if (GLEW_OK != glew_err) {
 		printf("Failed initializing GLEW (%d): %s\n", glew_err, glewGetErrorString(glew_err));
 		return -1;
 	}
+#endif
 
 	GLint ublockv, ublockp;
 	glGetIntegerv(GL_MAX_VERTEX_UNIFORM_BLOCKS, &ublockv);
