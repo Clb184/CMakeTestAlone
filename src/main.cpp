@@ -307,6 +307,14 @@ int main(void) {
 	windata.height = scr_height;
 	windata.title = "Test GLFW3";
 	windata.pWindow = glfwCreateWindow(windata.width, windata.height, windata.title, nullptr, nullptr);
+	if (windata.pWindow == nullptr) {
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+		windata.pWindow = glfwCreateWindow(windata.width, windata.height, windata.title, nullptr, nullptr);
+	}
+	if (windata.pWindow == nullptr) {
+		printf("Your system doesn't support OpenGL 4.5 or 4.6, sorry\n");
+		return -1;
+	}
 	glfwSetKeyCallback(windata.pWindow, ThisKeyCallback);
 	glfwSetWindowUserPointer(windata.pWindow, &windata);
 
