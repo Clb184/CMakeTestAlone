@@ -102,7 +102,7 @@ void MatrixMultiply(Matrix* pMat0, Matrix* pMat1) {
 }
 
 const GLchar* g_VSSource =
-"#version 460 core\n"
+"#version 450 core\n"
 "layout(location = 0) in vec2 POSITION;\n"
 "layout(location = 1) in vec2 TEXCOORDS;\n"
 "layout(location = 2) in uint COLOR;\n"
@@ -120,7 +120,7 @@ const GLchar* g_VSSource =
 ;
 
 const GLchar* g_PSSource =
-"#version 460 core\n"
+"#version 450 core\n"
 "out vec4 COLOR;\n"
 "in vec4 uColor;\n"
 "in vec2 tex_coords;\n"
