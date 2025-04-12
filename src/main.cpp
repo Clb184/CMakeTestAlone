@@ -322,12 +322,10 @@ int main(void) {
 
 	// Start GLEW
 	glewExperimental = GL_TRUE;
-	if (GLEW_OK != glewInit()) {
-		glewExperimental = GL_FALSE;
-		if (GLEW_OK != glewInit()) {
-			printf("Failed initializing GLEW\n");
-			return -1;
-		}
+	GLenum glew_err = glewInit();
+	if (GLEW_OK != glew_err) {
+		printf("Failed initializing GLEW: %s\n", glewGetErrorString(glew_err));
+		return -1;
 	}
 
 	GLint ublockv, ublockp;
