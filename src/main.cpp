@@ -16,9 +16,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-
-#include "call.hpp"
-#include "another_call.hpp"
+#include <png.h>
 
 #define LogInfo(x) PrintInfo(x)
 #define LogError(x) PrintError(__FILE__, __LINE__, x)
@@ -218,10 +216,76 @@ void CreateTextureBatch(GLuint* pTextures, GLsizei cnt, char** data, GLsizei w, 
 	}
 }
 
+void* LoadDataFromFile(const char* file, size_t* pSize) {
+	FILE* fp;
+	if (fp = fopen(file, "rb")) {
+		size_t size = 0;
+		fseek(fp, 0, SEEK_END);
+		size = ftell(fp);
+		rewind(fp);
+		void* pData = MemAlloc(size);
+		fread(pData, size, 1, fp);
+		fclose(fp);
+		if (pSize)
+			*pSize = size;
+		return pData;
+	}
+	return nullptr;
+}
+
+GLuint CreatePNGTexture(const char* name) {
+	const char* png_title = name;
+	png_bytep chardata = (png_bytep)LoadDataFromFile(png_title, nullptr);
+	if (0 == png_sig_cmp(chardata, 0, 16)) {
+		printf("Opened png\n");
+	}
+	else {
+		return -1;
+	}
+	MemFree(chardata);
+	png_structp png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if (nullptr == png_) return -1;
+
+	png_infop png_info = png_create_info_struct(png_);
+	if (nullptr == png_info) {
+		png_destroy_read_struct(&png_, nullptr, nullptr);
+	}
+
+	FILE* fp = fopen(png_title, "rb");
+	png_set_gamma(png_, PNG_DEFAULT_sRGB, PNG_DEFAULT_sRGB);
+	png_set_alpha_mode(png_, PNG_ALPHA_PNG, PNG_DEFAULT_sRGB);
+	png_init_io(png_, fp);
+	png_read_info(png_, png_info);
+	unsigned int
+		iw = png_get_image_width(png_, png_info),
+		ih = png_get_image_height(png_, png_info),
+		channels = png_get_channels(png_, png_info);
+
+	char* pPixelData = (char*)MemAlloc(iw * ih * channels);
+	if (setjmp(png_jmpbuf(png_))) {
+		png_destroy_read_struct(&png_, &png_info, nullptr);
+	}
+	char** ppRows = (char**)MemAlloc(sizeof(char*) * iw);
+	for (int i = 0; i < ih; i++) {
+		ppRows[i] = &pPixelData[channels * iw * (ih - 1 - i)];
+	}
+	png_set_rows(png_, png_info, (png_bytepp)ppRows);
+	png_read_image(png_, (png_bytepp)ppRows);
+	png_read_end(png_, png_info);
+	png_destroy_read_struct(&png_, &png_info, nullptr);
+
+	// Create test texture for png
+	GLuint tex_png;
+	glGenTextures(1, &tex_png);
+	glBindTexture(GL_TEXTURE_2D, tex_png);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, iw, ih, 0, GL_RGBA, GL_UNSIGNED_BYTE, pPixelData);
+	MemFree(pPixelData);
+	MemFree(ppRows);
+	return tex_png;
+}
 
 int main(void) {
 	const float scr_width = 640.0f, scr_height = 480.0f;
-
 	WindowData windata;
 
 	Matrix mat;
@@ -262,6 +326,7 @@ int main(void) {
 	// Configure viewport
 	glEnable(GL_BLEND);
 	glViewport(0, 0, scr_width, scr_height);
+
 
 	// Create shaders (vertex and fragment)
 	GLuint vshader = -1, fshader = -1, program = -1;
@@ -349,13 +414,6 @@ int main(void) {
 		LogError("Failed binding sampler unit");
 	}
 
-	GLuint* texs = (GLuint*)MemAlloc(sizeof(GLuint) * 16);
-	if (texs) {
-		CreateTextureBatch(texs, 16, nullptr, 32, 32);
-		glBindTextures(0, 16, texs);
-		LogError("Failed binding texture batch");
-	}
-
 	glSamplerParameteri(sampler, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glSamplerParameteri(sampler, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glSamplerParameteri(sampler, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -391,6 +449,8 @@ int main(void) {
 	float angle = 0.0f;
 	const float tx = scr_width * 0.5f, ty = scr_height * 0.5f;
 
+	GLuint png_test = CreatePNGTexture("pngtest.png");
+
 	while (!glfwWindowShouldClose(windata.pWindow)) {
 		glfwPollEvents();
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -415,7 +475,6 @@ int main(void) {
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuff);
 		glClearColor(1.0, 0.0, 0.0, 0.0);
 		glClear(GL_COLOR_BUFFER_BIT);
-		glBindTextures(0, 16, texs);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		LogError("Error while drawing triangle for test");
 
@@ -430,8 +489,6 @@ int main(void) {
 		glfwSwapBuffers(windata.pWindow);
 		angle += 0.01f;
 	}
-
-	MemFree(texs);
 
 	return 0;
 }
