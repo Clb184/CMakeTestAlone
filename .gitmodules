@@ -7,3 +7,6 @@
 [submodule "deps/zlib"]
 	path = deps/zlib
 	url = https://github.com/madler/zlib
+[submodule "deps/DirectXMath"]
+	path = deps/DirectXMath
+	url = https://github.com/microsoft/DirectXMath
