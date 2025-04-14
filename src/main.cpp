@@ -236,19 +236,22 @@ void* LoadDataFromFile(const char* file, size_t* pSize) {
 GLuint CreatePNGTexture(const char* name) {
 	const char* png_title = name;
 	png_bytep chardata = (png_bytep)LoadDataFromFile(png_title, nullptr);
+	if(nullptr == chardata) return 0;
 	if (0 == png_sig_cmp(chardata, 0, 16)) {
 		printf("Opened png\n");
 	}
 	else {
-		return -1;
+		MemFree(chardata);
+		return 0;
 	}
 	MemFree(chardata);
 	png_structp png_ = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
-	if (nullptr == png_) return -1;
+	if (nullptr == png_) return 0;
 
 	png_infop png_info = png_create_info_struct(png_);
 	if (nullptr == png_info) {
 		png_destroy_read_struct(&png_, nullptr, nullptr);
+		return 0;
 	}
 
 	FILE* fp = fopen(png_title, "rb");
