@@ -18,6 +18,14 @@
 #include <GLFW/glfw3.h>
 #include <png.h>
 
+#ifdef __linux__
+#include <algorithm>
+#include <iterator>
+#include <utility>
+#include <format>
+#endif
+#include <DirectXMath.h>
+
 #define LogInfo(x) PrintInfo(x)
 #define LogError(x) PrintError(__FILE__, __LINE__, x)
 
@@ -473,8 +481,8 @@ int main(void) {
 		glBindBuffer(GL_ARRAY_BUFFER, vertex);
 		TLVertex* pVert = (TLVertex*)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
 		if (pVert) {
-			float c = cosf(angle), s = sinf(angle);
-			//s = _mm_sincos_ps(&c, _mm_load_ps1(&angle));
+			float c = 0.0f, s = 0.0f;
+			DirectX::XMScalarSinCos(&s, &c, angle);
 			float cosine = (c), sine = (s);
 			pVert[0] = { {tx + 120.0f * -sine, ty + cosine * 120.0f}, {0.0f, 0.0f},	0xff0000ff };
 			pVert[1] = { {tx + -160.0f * cosine - sine * -120.0f, ty + sine * -160.0f + cosine * -120.0f}, {0.0f, 1.0f},	0xffff00ff };
