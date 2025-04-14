@@ -38,6 +38,12 @@ set(EXE_NAME ${PROJECT_NAME}${CMAKE_DEBUG_POSTFIX})
 add_executable(${EXE_NAME} ${cpp_files} ${asm_files})
 
 # Libraries to link with
+
+if(!MSVC)
+	message("Getting sal.h for DirectXMath")
+	execute_process(COMMAND curl -L --output ${CMAKE_HOME_DIRECTORY}/include/sal.h https://raw.githubusercontent.com/dotnet/runtime/main/src/coreclr/pal/inc/rt/sal.h)
+endif()
+
 add_subdirectory(deps/zlib/)
 add_subdirectory(deps/libpng/)
 add_subdirectory(deps/glew/build/cmake/)
