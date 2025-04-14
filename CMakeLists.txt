@@ -42,6 +42,7 @@ add_subdirectory(deps/zlib/)
 add_subdirectory(deps/libpng/)
 add_subdirectory(deps/glew/build/cmake/)
 add_subdirectory(deps/glfw/)
+add_subdirectory(deps/DirectXMath)
 
 
 # Enable Hot Reload for MSVC compilers if supported.
@@ -50,7 +51,7 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-target_link_libraries(${EXE_NAME} glfw glew_s png_static)
+target_link_libraries(${EXE_NAME} glfw glew_s png_static DirectXMath)
 
 # Additional include directories
 target_include_directories(${EXE_NAME} PUBLIC include/ PUBLIC deps/glew/include/ )
