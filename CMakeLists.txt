@@ -39,7 +39,9 @@ add_executable(${EXE_NAME} ${cpp_files} ${asm_files})
 
 # Libraries to link with
 
-if(!MSVC)
+if(MSVC)
+	message("sal.h already comes with VS...")
+else()
 	message("Getting sal.h for DirectXMath")
 	execute_process(COMMAND curl -L --output ${CMAKE_HOME_DIRECTORY}/include/sal.h https://raw.githubusercontent.com/dotnet/runtime/main/src/coreclr/pal/inc/rt/sal.h)
 endif()
