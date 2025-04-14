@@ -495,7 +495,7 @@ int main(void) {
 		// Go back to default render target
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, render_tex);
+		glBindTexture(GL_TEXTURE_2D, png_test);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		LogError("Error while drawing triangle for test");
 
