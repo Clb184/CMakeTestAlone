@@ -46,7 +46,7 @@ inline void PrintError(const char* src_file, int line, const char* str) {
 	while (f >= src_file && !(*f == '\\' || *f == '/')) f--;
 	f++;
 	while (GLenum err = glGetError()) {
-		printf("%s : %5d [GL ERROR (%d)] - %s\n", f, line, err, str);
+		printf("%s : %d [GL ERROR (%d)] - %s\n", f, line, err, str);
 	}
 }
 

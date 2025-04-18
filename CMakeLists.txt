@@ -15,6 +15,7 @@ file(GLOB asm_files src/*.asm) # Assembly for the win lol
 # Some definitions for linking staticaly
 add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 add_compile_definitions(GLEW_STATIC)
+add_compile_definitions(__AVX__)
 
 # Set some variables to disable stuff I don't want to build.
 # I only use static libs so I have less files to deal with,
