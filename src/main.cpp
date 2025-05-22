@@ -295,6 +295,7 @@ GLuint CreatePNGTexture(const char* name) {
 	return tex_png;
 }
 
+// Main entrypoint
 int main(void) {
 	const float scr_width = 640.0f, scr_height = 480.0f;
 	WindowData windata;
