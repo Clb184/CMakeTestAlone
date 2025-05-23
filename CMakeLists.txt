@@ -1,5 +1,5 @@
 # CMake version 3.5, idk why but it may be useful
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.5)
 
 # Project and name
 set(CMAKE_CXX_STANDARD 20)
@@ -49,6 +49,7 @@ endif()
 add_subdirectory(deps/zlib/)
 add_subdirectory(deps/libpng/)
 add_subdirectory(deps/glew/build/cmake/)
+add_compile_definitions(-DGLEW_NO_GLU)
 add_subdirectory(deps/glfw/)
 add_subdirectory(deps/DirectXMath)
 
