@@ -1,5 +1,5 @@
 # CMake version 3.5, idk why but it may be useful
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.30)
 
 # Project and name
 set(CMAKE_CXX_STANDARD 20)
